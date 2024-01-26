@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Inscrição para Evento</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Estilo para centralizar o texto no rodapé e aplicar cores */
+        .footer-text {
+            background-color: #001f3f; /* Azul marinho */
+            color: #ffffff; /* Branco */
+            padding: 20px; /* Adiciona um pouco de espaço ao redor do texto */
+            border-radius: 5px; /* Adiciona bordas arredondadas */
+            text-align: center; /* Centraliza o texto */
+        }
+
+        /* Estilo para estender o fundo por toda a largura do navegador */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .container-fluid {
+            padding: 0;
+        }
+
+        /* Estilo para o título no cabeçalho */
+        .header-title {
+            background-color: #001f3f; /* Azul marinho */
+            color: #ffffff; /* Branco */
+            text-align: center;
+            padding: 10px; /* Adiciona um pouco de espaço ao redor do texto */
+            border-radius: 5px; /* Adiciona bordas arredondadas */
+            margin-bottom: 20px; /* Adiciona espaço abaixo do título */
+            margin-left: -15px; /* Remove a margem padrão do container */
+            margin-right: -15px; /* Remove a margem padrão do container */
+        }
+
+        /* Estilo para as colunas no rodapé */
+        .footer-column {
+            display: inline-block;
+            width: 48%; /* Define a largura de cada coluna */
+            vertical-align: middle; /* Alinha o texto ao centro verticalmente */
+        }
+    </style>
+
+</head>
+<body>
+   <!-- Conteúdo principal -->
+    <div class="container mt-5">
+        <h1 class="mb-4 header-title">Sistema de Inscrição para Evento</h1><br>
+        
+        
+        <form action="{{ url_for('inscrever') }}" method="post">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" class="form-control" id="nome" name="nome" value="{{ nome }}" required>
+                {% if mensagem_nome %}
+                    <div class="alert alert-danger mt-1" role="alert">
+                        {{ mensagem_nome }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="idade">Idade:</label>
+                <input type="number" class="form-control" id="idade" name="idade" value="{{ idade }}" required>
+                {% if mensagem_idade %}
+                    <div class="alert alert-danger mt-1" role="alert">
+                        {{ mensagem_idade }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="endereco">Endereço:</label>
+                <input type="text" class="form-control" id="endereco" name="endereco" value="{{ endereco }}" required>
+                {% if mensagem_endereco %}
+                    <div class="alert alert-danger mt-1" role="alert">
+                        {{ mensagem_endereco }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="residencia_sp" name="residencia_sp" {% if residencia_sp %}checked{% endif %}>
+                <label class="form-check-label" for="residencia_sp">Confirmo que resido em São Paulo (SP)</label>
+                {% if mensagem_residencia_sp %}
+                    <div class="alert alert-danger mt-1" role="alert">
+                        {{ mensagem_residencia_sp }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="evento_noite" name="evento_noite" {% if evento_noite %}checked{% endif %}>
+                <label class="form-check-label" for="evento_noite">Confirmo que poderei participar do evento à noite</label>
+                {% if mensagem_evento_noite %}
+                    <div class="alert alert-danger mt-1" role="alert">
+                        {{ mensagem_evento_noite }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn btn-primary mt-3">Enviar Inscrição</button>
+        </form>
+
+        <!-- Exibição da mensagem de sucesso -->
+        {% if mensagem_sucesso %}
+            <div class="alert alert-success mt-4" role="alert">
+                {{ mensagem_sucesso }}
+            </div>
+        {% endif %}
+
+        
+        {% if mensagem %}
+        <div class="alert alert-info mt-4" role="alert">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+        
+        
+        <h2 class="mt-5">Inscrições: {{ contador_inscricoes }}/{{ max_inscricoes }}</h2><br>
+        <ul class="list-group">
+            {% for inscricao in inscricoes %}
+            <li class="list-group-item">{{ inscricao.numero }} - {{ inscricao.nome|title }}</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Botão de Reset e Modal de Confirmação -->
+        <button type="button" class="btn btn-warning mt-3" data-toggle="modal" data-target="#resetModal">
+            Resetar Cadastro
+        </button>
+
+        <!-- Modal de confirmação para o reset -->
+        <div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-labelledby="resetModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="resetModalLabel">Confirmar Reset</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Ao clicar em "Resetar Cadastro", todos os registros serão excluídos. Esta ação é irreversível e é destinada apenas para fins de teste. Deseja continuar?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <form action="{{ url_for('reset') }}" method="post">
+                            <button type="submit" class="btn btn-warning">Resetar Cadastro</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br>
+
+    <!-- Rodapé centralizado e estendido -->
+    <div class="container-fluid">
+        <div class="footer-text">
+            <div class="footer-column">
+                Grupo Match!<br>
+                Turma de setembro de 2023<br>
+                Projeto desenvolvido para o Módulo 2 – Projeto 7
+            </div>
+            <div class="footer-column">
+                Equipe:<br>
+                Josenilton Pereira de Novaes<br>
+                Raquel de Paula Oliveira Santos<br>
+                André de Carvalho Pereira
+            </div>
+        </div>
+    </div>
+
+    <!-- Adicione o JavaScript do Bootstrap e outros scripts, se necessário -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
